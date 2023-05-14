@@ -2,7 +2,7 @@ public class MyHashTable<K, V> {
     private class HashNode<K, V> {
         private K key;
         private V value;
-        private HashNode<K, V> next;
+        public HashNode<K, V> next;
 
         public HashNode(K key, V value) {
             this.key = key;
@@ -19,19 +19,17 @@ public class MyHashTable<K, V> {
     private int M = 11;
     private int size;
 
-    @SuppressWarnings("unchecked")
     public MyHashTable() {
-        chainArray = (HashNode<K, V>[]) new HashNode[M];
+        chainArray = new HashNode[M];
     }
 
-    @SuppressWarnings("unchecked")
     public MyHashTable(int M) {
         this.M = M;
-        chainArray = (HashNode<K, V>[]) new HashNode[M];
+        chainArray = new HashNode[M];
     }
 
     private int hash(K key) {
-        return key.hashCode() % M;
+        return Math.abs(key.hashCode() % M);
     }
 
     public void put(K key, V value) {
@@ -41,14 +39,19 @@ public class MyHashTable<K, V> {
         if (chainArray[index] == null) {
             chainArray[index] = newNode;
         } else {
-            HashNode<K, V> curr = chainArray[index];
-            while (curr.next != null && !curr.key.equals(key)) {
-                curr = curr.next;
+            HashNode<K, V> currentNode = chainArray[index];
+            while (currentNode.next != null) {
+                if (currentNode.key.equals(key)) {
+                    currentNode.value = value;
+                    return;
+                }
+                currentNode = currentNode.next;
             }
-            if (curr.key.equals(key)) {
-                curr.value = value;
+
+            if (currentNode.key.equals(key)) {
+                currentNode.value = value;
             } else {
-                curr.next = newNode;
+                currentNode.next = newNode;
             }
         }
         size++;
@@ -57,14 +60,12 @@ public class MyHashTable<K, V> {
     public V get(K key) {
         int index = hash(key);
 
-        if (chainArray[index] != null) {
-            HashNode<K, V> curr = chainArray[index];
-            while (curr != null) {
-                if (curr.key.equals(key)) {
-                    return curr.value;
-                }
-                curr = curr.next;
+        HashNode<K, V> currentNode = chainArray[index];
+        while (currentNode != null) {
+            if (currentNode.key.equals(key)) {
+                return currentNode.value;
             }
+            currentNode = currentNode.next;
         }
         return null;
     }
@@ -72,34 +73,33 @@ public class MyHashTable<K, V> {
     public V remove(K key) {
         int index = hash(key);
 
-        if (chainArray[index] != null) {
-            HashNode<K, V> curr = chainArray[index];
-            HashNode<K, V> prev = null;
-            while (curr != null) {
-                if (curr.key.equals(key)) {
-                    if (prev == null) {
-                        chainArray[index] = curr.next;
-                    } else {
-                        prev.next = curr.next;
-                    }
-                    size--;
-                    return curr.value;
+        HashNode<K, V> currentNode = chainArray[index];
+        HashNode<K, V> prevNode = null;
+
+        while (currentNode != null) {
+            if (currentNode.key.equals(key)) {
+                if (prevNode == null) {
+                    chainArray[index] = currentNode.next;
+                } else {
+                    prevNode.next = currentNode.next;
                 }
-                prev = curr;
-                curr = curr.next;
+                size--;
+                return currentNode.value;
             }
+            prevNode = currentNode;
+            currentNode = currentNode.next;
         }
         return null;
     }
 
     public boolean contains(V value) {
         for (int i = 0; i < M; i++) {
-            HashNode<K, V> curr = chainArray[i];
-            while (curr != null) {
-                if (curr.value.equals(value)) {
+            HashNode<K, V> currentNode = chainArray[i];
+            while (currentNode != null) {
+                if (currentNode.value.equals(value)) {
                     return true;
                 }
-                curr = curr.next;
+                currentNode = currentNode.next;
             }
         }
         return false;
@@ -107,14 +107,16 @@ public class MyHashTable<K, V> {
 
     public K getKey(V value) {
         for (int i = 0; i < M; i++) {
-            HashNode<K, V> curr = chainArray[i];
-            while (curr != null) {
-                if (curr.value.equals(value)) {
-                    return curr.key;
+            HashNode<K, V> currentNode = chainArray[i];
+            while (currentNode != null) {
+                if (currentNode.value.equals(value)) {
+                    return currentNode.key;
                 }
-                curr = curr.next;
+                currentNode = currentNode.next;
             }
         }
         return null;
     }
 }
+
+
