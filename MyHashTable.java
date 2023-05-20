@@ -15,7 +15,7 @@ public class MyHashTable<K, V> {
         }
     }
 
-    private HashNode<K, V>[] chainArray;
+    public HashNode<K, V>[] chainArray;
     public int M = 11;
     public int size;
     private double loadFactorThreshold = 0.75;

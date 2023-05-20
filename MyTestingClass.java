@@ -1,22 +1,17 @@
-import java.util.Objects;
+import java.util.Random;
 
 public class MyTestingClass {
-    private int value;
+    private int id;
 
-    public MyTestingClass(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
+    public MyTestingClass(int id) {
+        this.id = id;
     }
 
     @Override
     public int hashCode() {
-        int prime = 31;
-        int result = 1;
-        result = prime * result + value;
-        return result;
+        // Custom hashCode implementation
+        // You can modify this implementation based on your requirements
+        return id % 10; // Modulo 10 to distribute elements across buckets
     }
 
     @Override
@@ -28,13 +23,42 @@ public class MyTestingClass {
             return false;
         }
         MyTestingClass other = (MyTestingClass) obj;
-        return value == other.value;
+        return id == other.id;
     }
 
     @Override
     public String toString() {
         return "MyTestingClass{" +
-                "value=" + value +
+                "id=" + id +
                 '}';
+    }
+}
+
+public class MyHashTableTest {
+    public static void main(String[] args) {
+        MyHashTable<MyTestingClass, Student> table = new MyHashTable<>();
+
+        // Add random 10,000 elements to the hash table
+        Random random = new Random();
+        for (int i = 0; i < 10000; i++) {
+            MyTestingClass key = new MyTestingClass(i);
+            Student value = new Student("Student " + i);
+            table.put(key, value);
+        }
+
+        // Count the number of elements in each bucket
+        int[] bucketSizes = new int[table.M];
+        for (int i = 0; i < table.M; i++) {
+            HashNode<MyTestingClass, Student> currentNode = table.chainArray[i];
+            while (currentNode != null) {
+                bucketSizes[i]++;
+                currentNode = currentNode.next;
+            }
+        }
+
+        // Print the number of elements in each bucket
+        for (int i = 0; i < table.M; i++) {
+            System.out.println("Bucket " + i + ": " + bucketSizes[i] + " elements");
+        }
     }
 }
