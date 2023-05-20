@@ -16,8 +16,9 @@ public class MyHashTable<K, V> {
     }
 
     private HashNode<K, V>[] chainArray;
-    private int M = 11;
-    private int size;
+    public int M = 11;
+    public int size;
+    private double loadFactorThreshold = 0.75;
 
     public MyHashTable() {
         chainArray = new HashNode[M];
@@ -55,8 +56,35 @@ public class MyHashTable<K, V> {
             }
         }
         size++;
+        if ((double) size / M > loadFactorThreshold) {
+            resize();
+        }
     }
+    private void resize() {
+        int newM = M * 2; // Double the size of the array
 
+        // Create a new array with the increased size
+        HashNode<K, V>[] newChainArray = new HashNode[newM];
+
+        // Rehash all the existing elements into the new array
+        for (int i = 0; i < M; i++) {
+            HashNode<K, V> currentNode = chainArray[i];
+            while (currentNode != null) {
+                HashNode<K, V> nextNode = currentNode.next;
+                int newIndex = Math.abs(currentNode.key.hashCode() % newM);
+
+                // Insert the node into the new array
+                currentNode.next = newChainArray[newIndex];
+                newChainArray[newIndex] = currentNode;
+
+                currentNode = nextNode;
+            }
+        }
+
+        // Update the hash table's array and size
+        chainArray = newChainArray;
+        M = newM;
+    }
     public V get(K key) {
         int index = hash(key);
 
